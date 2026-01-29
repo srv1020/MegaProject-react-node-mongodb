@@ -8,4 +8,4 @@ reclaimPolicy: {{ .Values.storage.reclaimPolicy }}
 allowVolumeExpansion: true
 parameters:
   type: {{ .Values.storage.parameters.type }}
-fsType: {{ .Values.storage.parameters.fsType }}
+fsType: {{ .Values.storage.fsType }}
