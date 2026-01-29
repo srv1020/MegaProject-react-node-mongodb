@@ -32,6 +32,8 @@ spec:
             secretKeyRef:
               name: {{ .Values.secret.name }}
               key: root-password
+        - name: MONGO_INITDB_DATABASE
+          value: {{ .Values.database.name }}
         volumeMounts:
         - name: mongo-data
           mountPath: /data/db
