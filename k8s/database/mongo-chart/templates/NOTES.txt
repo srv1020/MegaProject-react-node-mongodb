@@ -1,0 +1,23 @@
+MongoDB has been deployed!
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+To connect to MongoDB:
+
+1. Get the MongoDB connection string:
+   
+   mongodb://{{ .Values.secret.name }}:27017
+
+2. Access MongoDB from within the cluster:
+   
+   kubectl run -it --rm mongo-client --image=mongo:{{ .Values.image.tag }} --restart=Never -- \
+     mongosh mongodb://admin:password@{{ .Values.service.name }}:{{ .Values.service.port }}/admin
+
+3. Check StatefulSet status:
+   
+   kubectl get statefulset mongo -n {{ .Release.Namespace }}
+
+4. View logs:
+   
+   kubectl logs -f mongo-0 -n {{ .Release.Namespace }}

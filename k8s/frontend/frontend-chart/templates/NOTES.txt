@@ -1,0 +1,24 @@
+Frontend application has been deployed!
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+To access the frontend:
+
+{{- if .Values.ingress.enabled }}
+1. Via Ingress:
+   {{- range .Values.ingress.hosts }}
+   - http://{{ .host }}
+   {{- end }}
+{{- else }}
+1. Via Port Forward:
+   kubectl port-forward -n {{ .Release.Namespace }} svc/frontend {{ .Values.service.port }}:{{ .Values.service.port }}
+   
+   Then access: http://localhost:{{ .Values.service.port }}
+{{- end }}
+
+2. Check deployment status:
+   kubectl get deployment frontend -n {{ .Release.Namespace }}
+
+3. View logs:
+   kubectl logs -l app=frontend -n {{ .Release.Namespace }}

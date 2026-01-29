@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mongodb
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: mongodb
+    repoURL: https://jaintpharsha.github.io/helm-charts/charts
+    targetRevision: 0.1.0
+    helm:
+      values: |
+        replicaCount: 1
+        storage:
+          size: 4Gi
+          className: ebs-mongo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: database
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

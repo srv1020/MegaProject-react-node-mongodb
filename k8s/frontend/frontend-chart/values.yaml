@@ -1,0 +1,31 @@
+replicaCount: 2
+
+image:
+  repository: harshajain/frontend
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+env:
+  backendUrl: "https://backend.acadcart.com"
+  domainUrl: "www.acadcart.com"
+
+ingress:
+  enabled: true
+  className: nginx
+
+probes:
+  readiness:
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 2
+  liveness:
+    path: /
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.mongoSecrets.secretName }}
+                  key: {{ .Values.secret.mongoSecrets.usernameKey }}
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.mongoSecrets.secretName }}
+                  key: {{ .Values.secret.mongoSecrets.passwordKey }}
+            - name: MONGO_AUTH_SOURCE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.mongoSecrets.secretName }}
+                  key: {{ .Values.secret.mongoSecrets.authDbKey }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: jwt-secret
+            - name: MONGO_HOST
+              value: "{{ .Values.env.mongoHost }}"
+            - name: MONGO_PORT
+              value: "{{ .Values.env.mongoPort }}"
+            - name: CORS_ORIGIN
+              value: "https://{{ .Values.domain }},https://www.{{ .Values.domain }}"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3

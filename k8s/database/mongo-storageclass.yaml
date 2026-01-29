@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-mongo
+  namespace: database
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp2
+  iopsPerGB: "10"
+  fsType: ext4
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+reclaimPolicy: Retain

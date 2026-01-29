@@ -1,0 +1,32 @@
+# 2️⃣ ArgoCD Application pointing to Git repo Helm chart
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backend
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/jaintpharsha/mern_3tire.git  # Your private Git repo
+    targetRevision: main  # or master, or specific branch/tag
+    path: k8s/backend/backend-chart
+    helm:
+      valueFiles:
+        - values.yaml
+      # Optional: Override values
+      values: |
+        replicaCount: 2
+        image:
+          tag: latest
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backend
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

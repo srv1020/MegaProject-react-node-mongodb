@@ -1,0 +1,22 @@
+# Install ArgoCD in Ubuntu 
+wget -q https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 -O argocd
+chmod +x argocd
+sudo mv argocd /usr/local/bin/
+
+# To connet to Argocd running in local same cluster 
+    1. Get the NodePort service info
+        kubectl get svc argocd-server -n argocd
+
+    2. Get the admin password of ArgoCD
+        kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d && echo
+
+    3. Login using Node IP + NodePort
+        argocd login <ANY_NODE_IP>:<NODEPORT> --username admin --password <PASSWORD> --insecure
+
+
+# ADD github repo to argocd
+    # For github username not required, just github-personal-access-token is used
+        argocd repo add https://github.com/jaintpharsha/mern_3tire.git \
+            --password <github-personal-access-token> \ 
+            --name mern_repo
+

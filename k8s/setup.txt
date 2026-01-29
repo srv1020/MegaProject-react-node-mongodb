@@ -1,0 +1,21 @@
+1. Install the Open Source Ingress-NGINX (maintained by Kubernetes community):
+	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+	helm repo update
+
+2. Install as a DaemonSet or Deployment
+	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.kind=Deployment --set controller.service.type=NodePort --set controller.hostPort.enabled=true
+
+	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.kind=DaemonSet --set controller.service.type=NodePort --set controller.hostPort.enabled=true
+
+3. Check the ingress related pods 
+   	kubectl get pods -n ingress-nginx
+	kubectl get svc -n ingress-nginx
+	kubectl get ingressclass
+
+Debug:
+  1. Check app service is accessable from ingress 
+  	 kubectl exec -n ingress-nginx <ingress-nginx-controller-pod> -- curl -s http://<service_name>.<namespace>.svc.cluster.local:3000/healthz
+
+  2. Check can accessable through ingress resource
+     curl -H "Host: backend.acadcart.com" http://<ingress_svc>/
+     curl -H "Host: backend.acadcart.com" http://<ingress_svc>/healthz

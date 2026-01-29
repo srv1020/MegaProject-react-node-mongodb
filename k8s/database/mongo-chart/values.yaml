@@ -1,0 +1,43 @@
+replicaCount: 2
+
+namespace: database
+
+image:
+  repository: mongo
+  tag: "6.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 27017
+  name: mongo-service
+
+storage:
+  className: ebs-mongo
+  size: 4Gi
+  accessMode: ReadWriteOnce
+  reclaimPolicy: Retain
+  volumeBindingMode: WaitForFirstConsumer
+  parameters:
+    type: gp3
+    fsType: ext4
+    iops: "3000"
+    throughput: "125"
+
+secret:
+  name: mongo-secret
+  rootUsername: YWRtaW4=              # base64 for "admin"
+  rootPassword: cGFzc3dvcmQ=          # base64 for "password"
+  authDatabase: bWFpbl9kYgo=          # base64 for "main_db"
+
+probes:
+  readiness:
+    initialDelaySeconds: 20
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 3
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3

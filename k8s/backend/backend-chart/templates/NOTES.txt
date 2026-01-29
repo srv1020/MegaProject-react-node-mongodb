@@ -1,0 +1,63 @@
+✅ Backend service "{{ .Release.Name }}" has been successfully deployed!
+
+-------------------------------------------------------------------------------
+
+🔹 **Application Info**
+Name:       {{ .Release.Name }}
+Namespace:  {{ .Release.Namespace }}
+Replicas:   {{ .Values.replicaCount }}
+Image:      {{ .Values.image.repository }}:{{ .Values.image.tag }}
+
+-------------------------------------------------------------------------------
+
+🔐 **Secrets**
+The following Kubernetes secrets are expected to exist or have been created:
+- `app-secrets` (contains JWT secret)
+- `mongo-secret` (must contain MongoDB credentials and auth DB)
+
+> Ensure `mongo-secret` is created if your chart doesn’t manage it.
+
+-------------------------------------------------------------------------------
+
+🌐 **Ingress Info**
+{{- if .Values.ingress.enabled }}
+Your backend service is exposed via Ingress at:
+
+  🔸 URL: https://backend.{{ .Values.domain }}
+
+> Make sure the DNS record for `backend.{{ .Values.domain }}` points to your Ingress controller.
+> If you're using a local cluster, consider editing your `/etc/hosts` file.
+
+Ingress Class:     {{ .Values.ingress.className }}
+
+{{- else }}
+⚠️ Ingress is disabled in your chart configuration.
+To enable it, set `ingress.enabled=true` in your values file or use:
+    helm upgrade --set ingress.enabled=true ...
+{{- end }}
+
+-------------------------------------------------------------------------------
+
+🛠️ **Next Steps**
+
+• Monitor your pods:
+    kubectl get pods -l app=backend
+
+• View logs:
+    kubectl logs -l app=backend -c backend
+
+• Test internal service (from within the cluster):
+    curl http://backend.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/healthz
+
+• Test Ingress endpoint (if exposed):
+    curl https://backend.{{ .Values.domain }}/healthz
+
+-------------------------------------------------------------------------------
+
+📬 **Support**
+If you face any issues, check:
+  • Liveness/readiness probe logs
+  • Secret validity
+  • Ingress controller logs
+
+Happy shipping 🚀
