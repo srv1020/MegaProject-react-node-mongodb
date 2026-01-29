@@ -7,7 +7,6 @@ volumeBindingMode: {{ .Values.storage.volumeBindingMode }}
 parameters:
   type: {{ .Values.storage.parameters.type }}
   fsType: {{ .Values.storage.parameters.fsType }}
-  iops: {{ .Values.storage.parameters.iops | quote }}
-  throughput: {{ .Values.storage.parameters.throughput | quote }}
+  
 allowVolumeExpansion: true
 reclaimPolicy: {{ .Values.storage.reclaimPolicy }}
