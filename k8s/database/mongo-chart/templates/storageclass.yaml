@@ -4,9 +4,8 @@ metadata:
   name: {{ .Values.storage.className }}
 provisioner: ebs.csi.aws.com
 volumeBindingMode: {{ .Values.storage.volumeBindingMode }}
+reclaimPolicy: {{ .Values.storage.reclaimPolicy }}
+allowVolumeExpansion: true
 parameters:
   type: {{ .Values.storage.parameters.type }}
-  fsType: {{ .Values.storage.parameters.fsType }}
-  
-allowVolumeExpansion: true
-reclaimPolicy: {{ .Values.storage.reclaimPolicy }}
+fsType: {{ .Values.storage.parameters.fsType }}

@@ -13,16 +13,15 @@ service:
   name: mongo-service
 
 storage:
-  className: ebs-mongo
+  className: ebs-gp3-clean
   size: 4Gi
   accessMode: ReadWriteOnce
   reclaimPolicy: Retain
   volumeBindingMode: WaitForFirstConsumer
+  fsType: ext4
   parameters:
     type: gp3
-    fsType: ext4
-    iops: "3000"
-    throughput: "125"
+
 
 secret:
   name: mongo-secret
