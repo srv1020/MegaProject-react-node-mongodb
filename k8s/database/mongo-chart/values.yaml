@@ -13,7 +13,7 @@ service:
   name: mongo-service
 
 storage:
-  className: mongodb-sc-pv
+  className: ebs-mongo
   size: 4Gi
   accessMode: ReadWriteOnce
 
