@@ -13,15 +13,9 @@ service:
   name: mongo-service
 
 storage:
-  className: ebs-gp3-clean
+  className: mongodb-sc-pv
   size: 4Gi
   accessMode: ReadWriteOnce
-  reclaimPolicy: Retain
-  volumeBindingMode: WaitForFirstConsumer
-  fsType: ext4
-  parameters:
-    type: gp3
-
 
 secret:
   name: mongo-secret
