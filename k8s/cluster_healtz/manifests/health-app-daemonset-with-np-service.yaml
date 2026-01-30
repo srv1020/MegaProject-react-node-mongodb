@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: healthz
-          image: harshajain/k8s-healthz:latest
+          image: srvpndy/cluster_healtz:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
