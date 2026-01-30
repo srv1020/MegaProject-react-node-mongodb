@@ -34,6 +34,10 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secret.mongoSecrets.secretName }}
                   key: {{ .Values.secret.mongoSecrets.authDbKey }}
+                  
+            - name: DATABASE_NAME
+              value: "{{ .Values.database.name }}"
+
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:

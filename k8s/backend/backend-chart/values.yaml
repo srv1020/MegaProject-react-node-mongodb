@@ -19,8 +19,8 @@ ingress:
     nginx.ingress.kubernetes.io/rewrite-target: /
 
 env:
-  mongoHost: 13.126.250.220
-  mongoPort: 30082
+  mongoHost: mongo.database.svc.cluster.local
+  mongoPort: "27017"
 
 secret:
   appSecrets:
@@ -29,9 +29,11 @@ secret:
     # MongoDB credentials (must match database namespace credentials)
     rootUsername: YWRtaW4=              # base64 for "admin"
     rootPassword: cGFzc3dvcmQ=          # base64 for "password"
-    authDatabase: bWFpbl9kYgo=          # base64 for "main_db"
+       
     # References to keys in mongo-secret
     secretName: mongo-secret
     usernameKey: root-username
     passwordKey: root-password
     authDbKey: mongo-auth-db
+database:
+  name: srv-db 
