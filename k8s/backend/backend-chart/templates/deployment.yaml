@@ -18,6 +18,13 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.port }}
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
           env:
             - name: MONGO_USER
               valueFrom:
@@ -34,7 +41,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secret.mongoSecrets.secretName }}
                   key: {{ .Values.secret.mongoSecrets.authDbKey }}
-                  
+
             - name: DATABASE_NAME
               value: "{{ .Values.database.name }}"
 
