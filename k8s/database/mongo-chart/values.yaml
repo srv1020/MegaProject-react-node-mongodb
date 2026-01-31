@@ -1,8 +1,5 @@
 replicaCount: 1
 
-metadata
-  namespace: database
-
 image:
   repository: mongo
   tag: "6.0"
