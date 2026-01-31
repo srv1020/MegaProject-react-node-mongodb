@@ -1,6 +1,7 @@
 replicaCount: 1
 
-namespace: database
+metadata
+  namespace: database
 
 image:
   repository: mongo
@@ -27,12 +28,12 @@ database:
 
 probes:
   readiness:
-    initialDelaySeconds: 20
+    initialDelaySeconds: 60
     periodSeconds: 5
     timeoutSeconds: 5
     failureThreshold: 3
   liveness:
-    initialDelaySeconds: 30
+    initialDelaySeconds: 90
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 3
