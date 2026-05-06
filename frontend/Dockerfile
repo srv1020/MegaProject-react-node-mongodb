@@ -1,9 +1,19 @@
-FROM node:16
+FROM node:20
+
 WORKDIR /app
-COPY package.json .
+
+COPY package*.json ./
+
 RUN npm install
+
 COPY . .
-ENV NODE_APP_BACKEND_URL https://backend.example.com
+
+ARG REACT_APP_API_URL
+
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 RUN npm run build
 
-CMD ["npx", "serve", "-s", "build", "-l", "3000"]
+EXPOSE 3000
+
+CMD ["npm", "start"]
