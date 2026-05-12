@@ -179,3 +179,9 @@ config
 # OS
 .DS_Store
 Thumbs.db
+
+
+node_modules
+.git
+build
+npm-debug.log
