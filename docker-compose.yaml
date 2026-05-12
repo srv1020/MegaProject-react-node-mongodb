@@ -1,36 +1,24 @@
-services:
+version: "3.8"
 
+services:
   mongo:
     image: mongo:7
-
     container_name: mongo
-
     restart: always
-
-    ports:
-      - "27017:27017"
-
+    volumes:
+      - mongo-data:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: secure123
 
-    volumes:
-      - mongo-data:/data/db
-
   backend:
-    build:
-      context: ./backend
-
+    image: srvpndy/backend:a9caa56
     container_name: backend
-
     restart: always
-
     ports:
       - "5001:5001"
-
     environment:
-      PORT: 5001
-
+      port: 5001
       MONGO_HOST: mongo
       MONGO_PORT: 27017
       MONGO_DB_NAME: userdb
@@ -38,30 +26,20 @@ services:
 
       MONGO_USER: admin
       MONGO_PASSWORD: secure123
-
+      MONGO_URI: mongodb://admin:secure123@mongo:27017/myapp?authSource=admin
       JWT_SECRET: this-is-a-long-random-secret
-
-      CORS_ORIGIN: http://localhost:3000
-
+      CORS_ORIGIN: http://thedeva.space:3000
     depends_on:
       - mongo
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        REACT_APP_API_URL: http://localhost:5001
-
+    image: srvpndy/frontend:a9caa56
     container_name: frontend
-
     restart: always
-
     ports:
-      - "3000:3000"
-
+      - "3000:80"
     environment:
-      REACT_APP_API_URL: http://localhost:5001
-
+      REACT_APP_API_URL: http://13.206.222.142:5001
     depends_on:
       - backend
 
