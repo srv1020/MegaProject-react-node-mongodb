@@ -4,15 +4,17 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "docker-compose.yaml"
+
+permissions:
+  contents: write
 
 jobs:
-
   docker:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -32,9 +34,9 @@ jobs:
       - name: Build Frontend Image
         run: |
           docker build \
-          --build-arg REACT_APP_API_URL=http://api.thedeva.space:5001 \
-          -t ${{ secrets.DOCKER_USERNAME }}/frontend:${IMAGE_TAG} \
-          ./frontend
+            --build-arg REACT_APP_API_URL=http://api.thedeva.space:5001 \
+            -t ${{ secrets.DOCKER_USERNAME }}/frontend:${IMAGE_TAG} \
+            ./frontend
 
       - name: Push Frontend Image
         run: |
@@ -47,12 +49,28 @@ jobs:
       - name: Build Backend Image
         run: |
           docker build \
-          -t ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG} \
-          ./backend
+            -t ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG} \
+            ./backend
 
       - name: Push Backend Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}
+
+      # ======================
+      # Update docker-compose.yaml
+      # ======================
+
+      - name: Update docker-compose image tags
+        run: |
+          sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/frontend:.*|image: ${{ secrets.DOCKER_USERNAME }}/frontend:${IMAGE_TAG}|g" docker-compose.yaml
+          sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/backend:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}|g" docker-compose.yaml
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add docker-compose.yaml
+          git commit -m "Update Docker image tags to ${IMAGE_TAG}" || echo "No changes to commit"
+          git push
 
       # ======================
       # Print Tags
