@@ -12,7 +12,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: secure123
 
   backend:
-    image: srvpndy/backend:a9caa56
+    image: srvpndy/backend:bc6a778
     container_name: backend
     restart: always
     ports:
@@ -33,7 +33,7 @@ services:
       - mongo
 
   frontend:
-    image: srvpndy/frontend:a9caa56
+    image: srvpndy/frontend:bc6a778
     container_name: frontend
     restart: always
     ports:
