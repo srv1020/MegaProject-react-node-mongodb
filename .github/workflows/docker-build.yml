@@ -6,6 +6,7 @@ on:
       - main
     paths-ignore:
       - "docker-compose.yaml"
+      - "helm/mega-app/values.yaml"
 
 permissions:
   contents: write
@@ -57,19 +58,36 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}
 
       # ======================
-      # Update Backend Tag
+      # Update docker-compose.yaml
       # ======================
 
-      - name: Update backend image tag
+      - name: Update docker-compose backend tag
         run: |
           sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/backend:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}|g" docker-compose.yaml
 
+      # ======================
+      # Update Helm values.yaml
+      # ======================
+
+      - name: Update Helm image tags
+        run: |
+          sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/frontend:.*|image: ${{ secrets.DOCKER_USERNAME }}/frontend:${IMAGE_TAG}|g" helm/mega-app/values.yaml
+
+          sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/backend:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}|g" helm/mega-app/values.yaml
+
+      # ======================
+      # Commit Updated Files
+      # ======================
+
+      - name: Commit updated tags
+        run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
           git add docker-compose.yaml
+          git add helm/mega-app/values.yaml
 
-          git commit -m "Update backend image tag to ${IMAGE_TAG}" || echo "No changes"
+          git commit -m "Update image tags to ${IMAGE_TAG}" || echo "No changes"
 
           git push
 
