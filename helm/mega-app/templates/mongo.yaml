@@ -60,20 +60,24 @@ spec:
           livenessProbe:
             exec:
               command:
-                - mongosh
-                - --eval
-                - "db.adminCommand('ping')"
+                - sh
+                - -c
+                - mongosh -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "db.adminCommand('ping')"
             initialDelaySeconds: {{ .Values.mongo.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.mongo.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.mongo.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.mongo.livenessProbe.failureThreshold }}
 
           readinessProbe:
             exec:
               command:
-                - mongosh
-                - --eval
-                - "db.adminCommand('ping')"
+                - sh
+                - -c
+                - mongosh -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "db.adminCommand('ping')"
             initialDelaySeconds: {{ .Values.mongo.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.mongo.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.mongo.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.mongo.readinessProbe.failureThreshold }}
 
       volumes:
         - name: mongo-data
