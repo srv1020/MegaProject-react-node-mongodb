@@ -57,6 +57,23 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}
 
       # ======================
+      # Update Backend Tag
+      # ======================
+
+      - name: Update backend image tag
+        run: |
+          sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/backend:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}|g" docker-compose.yaml
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add docker-compose.yaml
+
+          git commit -m "Update backend image tag to ${IMAGE_TAG}" || echo "No changes"
+
+          git push
+
+      # ======================
       # Print Tags
       # ======================
 
