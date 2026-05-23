@@ -71,9 +71,9 @@ jobs:
 
       - name: Update Helm image tags
         run: |
-          sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/frontend:.*|image: ${{ secrets.DOCKER_USERNAME }}/frontend:${IMAGE_TAG}|g" helm/mega-app/values.yaml
+          sed -i "/frontend:/,/imagePullPolicy:/ s|tag: .*|tag: ${IMAGE_TAG}|" helm/mega-app/values.yaml
 
-          sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/backend:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}|g" helm/mega-app/values.yaml
+          sed -i "/backend:/,/imagePullPolicy:/ s|tag: .*|tag: ${IMAGE_TAG}|" helm/mega-app/values.yaml
 
       # ======================
       # Commit Updated Files
