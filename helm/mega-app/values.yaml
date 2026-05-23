@@ -2,7 +2,7 @@ namespace: mega-app
 
 frontend:
   image: srvpndy/frontend
-  tag: 8a32cb3
+  tag: 013f37b
   imagePullPolicy: IfNotPresent
   replicaCount: 2
   port: 80
@@ -34,7 +34,7 @@ frontend:
 
 backend:
   image: srvpndy/backend
-  tag: 8a32cb3
+  tag: 013f37b
   imagePullPolicy: IfNotPresent
   replicaCount: 2
   port: 5001
