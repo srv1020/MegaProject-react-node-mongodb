@@ -77,10 +77,12 @@ backend:
     maxReplicas: 6
     cpuUtilization: 70
 
+
 mongo:
   image: mongo
   tag: "7"
   imagePullPolicy: IfNotPresent
+
   replicaCount: 1
   port: 27017
 
@@ -100,9 +102,13 @@ mongo:
       memory: 512Mi
 
   livenessProbe:
-    initialDelaySeconds: 30
-    periodSeconds: 10
+    initialDelaySeconds: 60
+    periodSeconds: 15
+    timeoutSeconds: 10
+    failureThreshold: 5
 
   readinessProbe:
-    initialDelaySeconds: 10
-    periodSeconds: 5
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 10
+    failureThreshold: 6
