@@ -1,25 +1,103 @@
-namespace: default
+namespace: mega-app
 
 frontend:
-  image: srvpndy/frontend:49dfbff
+  image: srvpndy/frontend
+  tag: bc6a778
+  imagePullPolicy: IfNotPresent
+  replicaCount: 2
   port: 80
-  servicePort: 80
-  nodePort: 30080
+  targetPort: 80
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
+  livenessProbe:
+    path: /
+    initialDelaySeconds: 20
+    periodSeconds: 10
+
+  readinessProbe:
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    cpuUtilization: 70
 
 backend:
-  image: srvpndy/backend:49dfbff
+  image: srvpndy/backend
+  tag: bc6a778
+  imagePullPolicy: IfNotPresent
+  replicaCount: 2
   port: 5001
-  servicePort: 5001
-  corsOrigin: http://mega.local
+  targetPort: 5001
+
+  env:
+    PORT: "5001"
+    MONGO_HOST: mongo
+    MONGO_PORT: "27017"
+    MONGO_DB_NAME: srvpndy
+    MONGO_AUTH_SOURCE: admin
+    CORS_ORIGIN: http://mega.local:8080
+
+  secrets:
+    MONGO_USER: admin
+    MONGO_PASSWORD: secure123
+    JWT_SECRET: this-is-a-long-random-secret
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  livenessProbe:
+    path: /
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    path: /
+    initialDelaySeconds: 10
+    periodSeconds: 5
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    cpuUtilization: 70
 
 mongo:
-  image: mongo:7
+  image: mongo
+  tag: "7"
+  imagePullPolicy: IfNotPresent
+  replicaCount: 1
   port: 27017
+
   username: admin
   password: secure123
   database: srvpndy
+
   storage: 1Gi
   mountPath: /data/db
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
   livenessProbe:
     initialDelaySeconds: 30
