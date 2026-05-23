@@ -10,7 +10,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: secure123
 
   backend:
-    image: srvpndy/backend:a788b08
+    image: srvpndy/backend:7579172
     container_name: backend
     restart: unless-stopped
     ports:

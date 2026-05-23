@@ -1,13 +1,13 @@
 namespace: default
 
 frontend:
-  image: srvpndy/frontend:latest
+  image: srvpndy/frontend:7579172
   port: 80
   servicePort: 80
   nodePort: 30080
 
 backend:
-  image: srvpndy/backend:latest
+  image: srvpndy/backend:7579172
   port: 5001
   servicePort: 5001
   corsOrigin: http://localhost:30080
