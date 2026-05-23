@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mongo-pvc
+  namespace: {{ .Values.namespace }}
 spec:
   accessModes:
     - ReadWriteOnce
@@ -14,31 +15,43 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongo
+  namespace: {{ .Values.namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.mongo.replicaCount }}
   selector:
     matchLabels:
       app: mongo
-
   template:
     metadata:
       labels:
         app: mongo
-
     spec:
       containers:
         - name: mongo
-          image: {{ .Values.mongo.image }}
-
+          image: "{{ .Values.mongo.image }}:{{ .Values.mongo.tag }}"
+          imagePullPolicy: {{ .Values.mongo.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.mongo.port }}
 
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
-              value: {{ .Values.mongo.username | quote }}
-
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGO_INITDB_ROOT_USERNAME
             - name: MONGO_INITDB_ROOT_PASSWORD
-              value: {{ .Values.mongo.password | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGO_INITDB_ROOT_PASSWORD
+
+          resources:
+            requests:
+              cpu: {{ .Values.mongo.resources.requests.cpu }}
+              memory: {{ .Values.mongo.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.mongo.resources.limits.cpu }}
+              memory: {{ .Values.mongo.resources.limits.memory }}
 
           volumeMounts:
             - name: mongo-data
@@ -72,11 +85,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongo
-
+  namespace: {{ .Values.namespace }}
 spec:
   selector:
     app: mongo
-
   ports:
     - port: {{ .Values.mongo.port }}
       targetPort: {{ .Values.mongo.port }}
