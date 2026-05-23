@@ -35,7 +35,26 @@ spec:
               value: {{ .Values.mongo.password | quote }}
           volumeMounts:
             - name: mongo-data
-              mountPath: /data/db
+              mountPath: {{ .Values.mongo.mountPath }}
+
+          livenessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: {{ .Values.mongo.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.mongo.livenessProbe.periodSeconds }}
+
+          readinessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: {{ .Values.mongo.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.mongo.readinessProbe.periodSeconds }}
+
       volumes:
         - name: mongo-data
           persistentVolumeClaim:
