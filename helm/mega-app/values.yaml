@@ -10,7 +10,7 @@ backend:
   image: srvpndy/backend:e79f21b
   port: 5001
   servicePort: 5001
-  corsOrigin: http://localhost:30080
+  corsOrigin: http://mega.local
 
 mongo:
   image: mongo:7
