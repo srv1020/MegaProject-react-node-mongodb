@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: {{ .Values.backend.image }}
+          ports:
+            - containerPort: {{ .Values.backend.port }}
+          env:
+            - name: PORT
+              value: {{ .Values.backend.port | quote }}
+            - name: MONGO_HOST
+              value: mongo
+            - name: MONGO_PORT
+              value: {{ .Values.mongo.port | quote }}
+            - name: MONGO_DB_NAME
+              value: {{ .Values.mongo.database | quote }}
+            - name: MONGO_AUTH_SOURCE
+              value: admin
+            - name: MONGO_USER
+              value: {{ .Values.mongo.username | quote }}
+            - name: MONGO_PASSWORD
+              value: {{ .Values.mongo.password | quote }}
+            - name: MONGO_URI
+              value: "mongodb://{{ .Values.mongo.username }}:{{ .Values.mongo.password }}@mongo:{{ .Values.mongo.port }}/myapp?authSource=admin"
+            - name: JWT_SECRET
+              value: this-is-a-long-random-secret
+            - name: CORS_ORIGIN
+              value: {{ .Values.backend.corsOrigin | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: {{ .Values.backend.servicePort }}
+      targetPort: {{ .Values.backend.port }}

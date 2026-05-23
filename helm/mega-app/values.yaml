@@ -1,0 +1,21 @@
+namespace: default
+
+frontend:
+  image: srvpndy/frontend:latest
+  port: 80
+  servicePort: 80
+  nodePort: 30080
+
+backend:
+  image: srvpndy/backend:latest
+  port: 5001
+  servicePort: 5001
+  corsOrigin: http://localhost:30080
+
+mongo:
+  image: mongo:7
+  port: 27017
+  username: admin
+  password: secure123
+  database: userdb
+  storage: 1Gi
