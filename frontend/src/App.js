@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
-// Backend URL from environment variable
-console.log('BACKEND URL:', process.env.REACT_APP_API_URL);
-
-// Axios instance
 const API = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   timeout: 5000,
@@ -14,7 +10,6 @@ const API = axios.create({
   }
 });
 
-// Attach JWT token automatically
 API.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
 
@@ -25,7 +20,6 @@ API.interceptors.request.use(config => {
   return config;
 });
 
-// Handle unauthorized responses
 API.interceptors.response.use(
   response => response,
   error => {
@@ -58,9 +52,6 @@ const App = () => {
     backendError: null
   });
 
-  // ======================
-  // Backend Health Check
-  // ======================
   useEffect(() => {
     const checkBackend = async (retryCount = 0) => {
       try {
@@ -74,13 +65,8 @@ const App = () => {
           }));
         }
       } catch (error) {
-        console.error('Backend check failed:', error);
-
         if (retryCount < 2) {
-          setTimeout(() => {
-            checkBackend(retryCount + 1);
-          }, 2000);
-
+          setTimeout(() => checkBackend(retryCount + 1), 2000);
           return;
         }
 
@@ -97,14 +83,9 @@ const App = () => {
     checkBackend();
   }, []);
 
-  // ======================
-  // Restore Login Session
-  // ======================
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const user = JSON.parse(
-      localStorage.getItem('user')
-    );
+    const user = JSON.parse(localStorage.getItem('user'));
 
     if (token && user) {
       setState(prev => ({
@@ -115,9 +96,6 @@ const App = () => {
     }
   }, []);
 
-  // ======================
-  // Fetch Users
-  // ======================
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -125,14 +103,10 @@ const App = () => {
 
         setState(prev => ({
           ...prev,
-          users: Array.isArray(data)
-            ? data
-            : [],
+          users: Array.isArray(data) ? data : [],
           error: ''
         }));
       } catch (error) {
-        console.error(error);
-
         setState(prev => ({
           ...prev,
           users: [],
@@ -148,9 +122,6 @@ const App = () => {
     }
   }, [state.isAuthenticated]);
 
-  // ======================
-  // Form Validation
-  // ======================
   const validateForm = () => {
     const { username, password } = state.form;
 
@@ -169,9 +140,6 @@ const App = () => {
     return null;
   };
 
-  // ======================
-  // Handle Input Change
-  // ======================
   const handleChange = e => {
     setState(prev => ({
       ...prev,
@@ -179,13 +147,11 @@ const App = () => {
         ...prev.form,
         [e.target.name]: e.target.value
       },
-      error: ''
+      error: '',
+      success: ''
     }));
   };
 
-  // ======================
-  // Login / Register
-  // ======================
   const handleAuth = async e => {
     e.preventDefault();
 
@@ -196,7 +162,6 @@ const App = () => {
         ...prev,
         error: validationError
       }));
-
       return;
     }
 
@@ -207,25 +172,12 @@ const App = () => {
     }));
 
     try {
-      const endpoint = state.isLogin
-        ? '/api/login'
-        : '/api/register';
-
-      const { data } = await API.post(
-        endpoint,
-        state.form
-      );
+      const endpoint = state.isLogin ? '/api/login' : '/api/register';
+      const { data } = await API.post(endpoint, state.form);
 
       if (state.isLogin) {
-        localStorage.setItem(
-          'token',
-          data.token
-        );
-
-        localStorage.setItem(
-          'user',
-          JSON.stringify(data.user)
-        );
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
 
         setState(prev => ({
           ...prev,
@@ -240,8 +192,7 @@ const App = () => {
       } else {
         setState(prev => ({
           ...prev,
-          success:
-            'Registration successful! Please login.',
+          success: 'Registration successful! Please login.',
           isLogin: true,
           loading: false,
           form: {
@@ -251,8 +202,6 @@ const App = () => {
         }));
       }
     } catch (error) {
-      console.error(error);
-
       const errorMessage =
         error.response?.data?.error ||
         (state.isLogin
@@ -271,9 +220,6 @@ const App = () => {
     }
   };
 
-  // ======================
-  // Logout
-  // ======================
   const handleLogout = () => {
     localStorage.clear();
 
@@ -289,51 +235,29 @@ const App = () => {
     }));
   };
 
-  // ======================
-  // Loading Screen
-  // ======================
   if (state.checkingBackend) {
     return (
-      <div className="container">
-        <div className="health-check">
+      <div className="app-shell">
+        <div className="status-card">
+          <div className="logo-circle">M</div>
           <h2>Connecting to backend...</h2>
-
           <div className="spinner"></div>
-
-          <p>
-            Checking:{' '}
-            {API.defaults.baseURL}
-          </p>
+          <p>Checking backend service</p>
+          <code>{API.defaults.baseURL}</code>
         </div>
       </div>
     );
   }
 
-  // ======================
-  // Backend Error
-  // ======================
   if (state.backendError) {
     return (
-      <div className="container">
-        <div className="error-panel">
+      <div className="app-shell">
+        <div className="status-card error-card">
+          <div className="logo-circle danger">!</div>
           <h2>Connection Error</h2>
-
           <p>{state.backendError}</p>
-
-          <p>
-            Verify backend is running at:
-          </p>
-
-          <code>
-            {API.defaults.baseURL}
-          </code>
-
-          <button
-            className="retry-btn"
-            onClick={() =>
-              window.location.reload()
-            }
-          >
+          <code>{API.defaults.baseURL}</code>
+          <button onClick={() => window.location.reload()}>
             Retry Connection
           </button>
         </div>
@@ -341,142 +265,155 @@ const App = () => {
     );
   }
 
-  // ======================
-  // Main App
-  // ======================
   return (
-    <div className="container">
+    <div className="app-shell">
+      <div className="background-shape shape-one"></div>
+      <div className="background-shape shape-two"></div>
+
       {!state.isAuthenticated ? (
-        <div className="auth-box">
-          <h2>
-            {state.isLogin
-              ? 'Login'
-              : 'Register'}
-          </h2>
+        <div className="auth-layout">
+          <div className="hero-panel">
+            <div className="brand">
+              <div className="logo-circle">M</div>
+              <span>Mega App</span>
+            </div>
 
-          <form onSubmit={handleAuth}>
-            <input
-              name="username"
-              placeholder="Username"
-              onChange={handleChange}
-              value={state.form.username}
-              required
-              minLength="3"
-              maxLength="30"
-            />
+            <h1>
+              Manage users with a clean Kubernetes-ready app.
+            </h1>
 
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              onChange={handleChange}
-              value={state.form.password}
-              required
-              minLength="6"
-            />
+            <p>
+              React frontend, Node backend, MongoDB database and modern cloud-native deployment.
+            </p>
 
-            <button
-              type="submit"
-              disabled={state.loading}
-              className={
-                state.loading
-                  ? 'loading'
-                  : ''
+            <div className="feature-list">
+              <div>Secure login</div>
+              <div>JWT based auth</div>
+              <div>Kubernetes ready</div>
+            </div>
+          </div>
+
+          <div className="auth-box">
+            <h2>{state.isLogin ? 'Welcome Back' : 'Create Account'}</h2>
+            <p className="subtitle">
+              {state.isLogin
+                ? 'Login to access your dashboard'
+                : 'Register a new account'}
+            </p>
+
+            <form onSubmit={handleAuth}>
+              <label>Username</label>
+              <input
+                name="username"
+                placeholder="Enter username"
+                onChange={handleChange}
+                value={state.form.username}
+                required
+                minLength="3"
+                maxLength="30"
+              />
+
+              <label>Password</label>
+              <input
+                name="password"
+                type="password"
+                placeholder="Enter password"
+                onChange={handleChange}
+                value={state.form.password}
+                required
+                minLength="6"
+              />
+
+              <button type="submit" disabled={state.loading}>
+                {state.loading ? (
+                  <div className="spinner small"></div>
+                ) : state.isLogin ? (
+                  'Login'
+                ) : (
+                  'Register'
+                )}
+              </button>
+            </form>
+
+            {state.error && (
+              <div className="alert error">{state.error}</div>
+            )}
+
+            {state.success && (
+              <div className="alert success">{state.success}</div>
+            )}
+
+            <p
+              className="toggle"
+              onClick={() =>
+                setState(prev => ({
+                  ...prev,
+                  isLogin: !prev.isLogin,
+                  error: '',
+                  success: '',
+                  form: {
+                    username: prev.form.username,
+                    password: ''
+                  }
+                }))
               }
             >
-              {state.loading ? (
-                <div className="spinner"></div>
-              ) : state.isLogin ? (
-                'Login'
-              ) : (
-                'Register'
-              )}
-            </button>
-          </form>
-
-          {state.error && (
-            <div className="alert error">
-              {state.error}
-            </div>
-          )}
-
-          {state.success && (
-            <div className="alert success">
-              {state.success}
-            </div>
-          )}
-
-          <p
-            className="toggle"
-            onClick={() =>
-              setState(prev => ({
-                ...prev,
-                isLogin:
-                  !prev.isLogin,
-                error: '',
-                form: {
-                  username:
-                    prev.form.username,
-                  password: ''
-                }
-              }))
-            }
-          >
-            {state.isLogin
-              ? 'Need an account? Register here'
-              : 'Already have an account? Login here'}
-          </p>
+              {state.isLogin
+                ? 'Need an account? Register here'
+                : 'Already have an account? Login here'}
+            </p>
+          </div>
         </div>
       ) : (
         <div className="dashboard">
-          <div className="header">
-            <h2>
-              Welcome,{' '}
-              {
-                state.currentUser
-                  ?.username
-              }
-            </h2>
+          <div className="dashboard-header">
+            <div>
+              <span className="welcome-label">Dashboard</span>
+              <h2>Welcome, {state.currentUser?.username}</h2>
+            </div>
 
-            <button
-              onClick={handleLogout}
-              className="logout-btn"
-            >
+            <button onClick={handleLogout} className="logout-btn">
               Logout
             </button>
           </div>
 
-          <h3>
-            Registered Users (
-            {state.users.length})
-          </h3>
+          <div className="stats-grid">
+            <div className="stat-card">
+              <span>Total Users</span>
+              <strong>{state.users.length}</strong>
+            </div>
 
-          <ul className="user-list">
-            {Array.isArray(
-              state.users
-            ) &&
-            state.users.length >
-              0 ? (
-              state.users.map(user => (
-                <li key={user._id}>
-                  <span>
-                    {user.username}
-                  </span>
+            <div className="stat-card">
+              <span>Status</span>
+              <strong>Online</strong>
+            </div>
+          </div>
 
-                  <small>
-                    Joined:{' '}
-                    {new Date(
-                      user.createdAt
-                    ).toLocaleDateString()}
-                  </small>
-                </li>
-              ))
-            ) : (
-              <li className="empty">
-                No users found
-              </li>
-            )}
-          </ul>
+          <div className="users-card">
+            <h3>Registered Users</h3>
+
+            <ul className="user-list">
+              {Array.isArray(state.users) && state.users.length > 0 ? (
+                state.users.map(user => (
+                  <li key={user._id}>
+                    <div className="user-avatar">
+                      {user.username?.charAt(0).toUpperCase()}
+                    </div>
+
+                    <div>
+                      <span>{user.username}</span>
+                      <small>
+                        Joined:{' '}
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </small>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li className="empty">No users found</li>
+              )}
+            </ul>
+          </div>
         </div>
       )}
     </div>

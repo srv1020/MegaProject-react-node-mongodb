@@ -1,0 +1,15 @@
+# mongo-service.yaml
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: mongo
+  namespace: thedeva
+
+spec:
+  selector:
+    app: mongo
+
+  ports:
+    - port: 27017
+      targetPort: 27017

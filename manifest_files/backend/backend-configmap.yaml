@@ -1,0 +1,20 @@
+# backend-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: backend-config
+  namespace: thedeva
+
+data:
+  port: "5001"
+  MONGO_HOST: mongo
+  MONGO_PORT: "27017"
+  MONGO_DB_NAME: userdb
+  MONGO_AUTH_SOURCE: admin
+
+  MONGO_URI: mongodb://admin:secure123@mongo:27017/myapp?authSource=admin
+
+  JWT_SECRET: this-is-a-long-random-secret
+
+  CORS_ORIGIN: "*"

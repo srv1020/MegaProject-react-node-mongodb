@@ -1,0 +1,18 @@
+# backend-service.yaml
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: backend
+  namespace: thedeva
+
+spec:
+  type: NodePort
+
+  selector:
+    app: backend
+
+  ports:
+    - port: 5001
+      targetPort: 5001
+      nodePort: 30051
