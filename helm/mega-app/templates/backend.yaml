@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
+  namespace: {{ .Values.namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels:
       app: backend
@@ -14,38 +15,72 @@ spec:
     spec:
       containers:
         - name: backend
-          image: {{ .Values.backend.image }}
+          image: "{{ .Values.backend.image }}:{{ .Values.backend.tag }}"
+          imagePullPolicy: {{ .Values.backend.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.backend.port }}
+
           env:
             - name: PORT
-              value: {{ .Values.backend.port | quote }}
+              value: {{ .Values.backend.env.PORT | quote }}
             - name: MONGO_HOST
-              value: mongo
+              value: {{ .Values.backend.env.MONGO_HOST | quote }}
             - name: MONGO_PORT
-              value: {{ .Values.mongo.port | quote }}
+              value: {{ .Values.backend.env.MONGO_PORT | quote }}
             - name: MONGO_DB_NAME
-              value: {{ .Values.mongo.database | quote }}
+              value: {{ .Values.backend.env.MONGO_DB_NAME | quote }}
             - name: MONGO_AUTH_SOURCE
-              value: admin
-            - name: MONGO_USER
-              value: {{ .Values.mongo.username | quote }}
-            - name: MONGO_PASSWORD
-              value: {{ .Values.mongo.password | quote }}
-            - name: MONGO_URI
-              value: "mongodb://{{ .Values.mongo.username }}:{{ .Values.mongo.password }}@mongo:{{ .Values.mongo.port }}/myapp?authSource=admin"
-            - name: JWT_SECRET
-              value: this-is-a-long-random-secret
+              value: {{ .Values.backend.env.MONGO_AUTH_SOURCE | quote }}
             - name: CORS_ORIGIN
-              value: {{ .Values.backend.corsOrigin | quote }}
+              value: {{ .Values.backend.env.CORS_ORIGIN | quote }}
+
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGO_USER
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGO_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: JWT_SECRET
+
+          resources:
+            requests:
+              cpu: {{ .Values.backend.resources.requests.cpu }}
+              memory: {{ .Values.backend.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.backend.resources.limits.cpu }}
+              memory: {{ .Values.backend.resources.limits.memory }}
+
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.backend.livenessProbe.path }}
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: {{ .Values.backend.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.backend.livenessProbe.periodSeconds }}
+
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.backend.readinessProbe.path }}
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: {{ .Values.backend.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.backend.readinessProbe.periodSeconds }}
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: backend
+  namespace: {{ .Values.namespace }}
 spec:
   selector:
     app: backend
   ports:
-    - port: {{ .Values.backend.servicePort }}
-      targetPort: {{ .Values.backend.port }}
+    - port: {{ .Values.backend.port }}
+      targetPort: {{ .Values.backend.targetPort }}
