@@ -1,13 +1,13 @@
 namespace: default
 
 frontend:
-  image: srvpndy/frontend:e79f21b
+  image: srvpndy/frontend:07e1bd4
   port: 80
   servicePort: 80
   nodePort: 30080
 
 backend:
-  image: srvpndy/backend:e79f21b
+  image: srvpndy/backend:07e1bd4
   port: 5001
   servicePort: 5001
   corsOrigin: http://mega.local
