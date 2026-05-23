@@ -80,6 +80,8 @@ kind: Service
 metadata:
   name: backend
   namespace: {{ .Values.namespace }}
+  labels:
+    app: backend
 spec:
   selector:
     app: backend
