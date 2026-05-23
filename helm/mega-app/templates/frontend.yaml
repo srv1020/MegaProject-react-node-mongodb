@@ -4,7 +4,9 @@ metadata:
   name: frontend
   namespace: {{ .Values.namespace }}
 spec:
+  {{- if not .Values.frontend.autoscaling.enabled }}
   replicas: {{ .Values.frontend.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: frontend
