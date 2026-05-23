@@ -17,5 +17,14 @@ mongo:
   port: 27017
   username: admin
   password: secure123
-  database: userdb
+  database: srvpndy
   storage: 1Gi
+  mountPath: /data/db
+
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 5
