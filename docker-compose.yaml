@@ -2,7 +2,7 @@ services:
   mongo:
     image: mongo:7
     container_name: mongo
-    restart: always
+    restart: unless-stopped
     volumes:
       - mongo-data:/data/db
     environment:
@@ -10,9 +10,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: secure123
 
   backend:
-    image: srvpndy/backend:latest
+    image: srvpndy/backend:bc6a778
     container_name: backend
-    restart: always
+    restart: unless-stopped
     ports:
       - "5001:5001"
     environment:
@@ -21,7 +21,6 @@ services:
       MONGO_PORT: 27017
       MONGO_DB_NAME: userdb
       MONGO_AUTH_SOURCE: admin
-
       MONGO_USER: admin
       MONGO_PASSWORD: secure123
       MONGO_URI: mongodb://admin:secure123@mongo:27017/myapp?authSource=admin
@@ -31,9 +30,12 @@ services:
       - mongo
 
   frontend:
-    image: srvpndy/frontend:latest
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_URL: http://localhost:5001
     container_name: frontend
-    restart: always
+    restart: unless-stopped
     ports:
       - "3000:80"
     depends_on:
