@@ -62,12 +62,12 @@ backend:
       memory: 512Mi
 
   livenessProbe:
-    path: /health
+    path: /api/healthz
     initialDelaySeconds: 60
     periodSeconds: 10
 
   readinessProbe:
-    path: /health
+    path: /api/healthz
     initialDelaySeconds: 30
     periodSeconds: 5
 
@@ -112,3 +112,4 @@ mongo:
     periodSeconds: 20
     timeoutSeconds: 5
     failureThreshold: 10
+
