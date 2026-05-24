@@ -62,13 +62,13 @@ backend:
       memory: 512Mi
 
   livenessProbe:
-    path: /
-    initialDelaySeconds: 30
+    path: /health
+    initialDelaySeconds: 60
     periodSeconds: 10
 
   readinessProbe:
-    path: /
-    initialDelaySeconds: 10
+    path: /health
+    initialDelaySeconds: 30
     periodSeconds: 5
 
   autoscaling:
