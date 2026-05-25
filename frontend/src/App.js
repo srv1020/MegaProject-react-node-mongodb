@@ -3,7 +3,7 @@ import axios from 'axios';
 import './App.css';
 
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
+  baseURL: '/api',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json'
@@ -25,7 +25,7 @@ API.interceptors.response.use(
   error => {
     if (
       error.response?.status === 401 &&
-      !error.config.url.includes('/api/login')
+      !error.config.url.includes('/login')
     ) {
       localStorage.clear();
       window.location.reload();
@@ -55,7 +55,7 @@ const App = () => {
   useEffect(() => {
     const checkBackend = async (retryCount = 0) => {
       try {
-        const { data } = await API.get('/api/healthz');
+        const { data } = await API.get('/healthz');
 
         if (data.status === 'ok') {
           setState(prev => ({
@@ -99,7 +99,7 @@ const App = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data } = await API.get('/api/users');
+        const { data } = await API.get('/users');
 
         setState(prev => ({
           ...prev,
@@ -172,7 +172,7 @@ const App = () => {
     }));
 
     try {
-      const endpoint = state.isLogin ? '/api/login' : '/api/register';
+      const endpoint = state.isLogin ? '/login' : '/register';
       const { data } = await API.post(endpoint, state.form);
 
       if (state.isLogin) {
