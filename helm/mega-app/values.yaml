@@ -113,3 +113,25 @@ mongo:
     timeoutSeconds: 5
     failureThreshold: 10
 
+alerts:
+  highErrorRate:
+    threshold: 3
+    for: 1m
+
+  mongodbDown:
+    for: 1m
+
+  podRestarting:
+    threshold: 3
+    for: 1m
+
+  podNotReady:
+    for: 2m
+
+  highCPU:
+    threshold: 0.8
+    for: 2m
+
+  highMemory:
+    threshold: 500
+    for: 2m

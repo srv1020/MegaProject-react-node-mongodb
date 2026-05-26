@@ -1,0 +1,66 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+
+spec:
+  groups:
+    - name: {{ .Release.Name }}.rules
+      rules:
+
+        - alert: HighErrorRate
+          expr: sum(increase(http_requests_total{namespace="{{ .Values.namespace }}",status=~"5.."}[5m])) > {{ .Values.alerts.highErrorRate.threshold }}
+          for: {{ .Values.alerts.highErrorRate.for }}
+          labels:
+            severity: critical
+          annotations:
+            summary: "High 5xx errors"
+            description: "More than {{ .Values.alerts.highErrorRate.threshold }} HTTP 5xx errors in 5 minutes."
+
+        - alert: MongoDBDown
+          expr: mongodb_up == 0
+          for: {{ .Values.alerts.mongodbDown.for }}
+          labels:
+            severity: critical
+          annotations:
+            summary: "MongoDB down"
+            description: "MongoDB health check failed."
+
+        - alert: PodRestarting
+          expr: increase(kube_pod_container_status_restarts_total{namespace="{{ .Values.namespace }}"}[5m]) > {{ .Values.alerts.podRestarting.threshold }}
+          for: {{ .Values.alerts.podRestarting.for }}
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod restarting frequently"
+            description: "Pod restarted more than {{ .Values.alerts.podRestarting.threshold }} times."
+
+        - alert: PodNotReady
+          expr: kube_pod_status_ready{namespace="{{ .Values.namespace }}",condition="false"} == 1
+          for: {{ .Values.alerts.podNotReady.for }}
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod not ready"
+            description: "One or more pods are not ready."
+
+        - alert: HighCPUUsage
+          expr: sum(rate(container_cpu_usage_seconds_total{namespace="{{ .Values.namespace }}",container!="POD",container!=""}[5m])) by (pod) > {{ .Values.alerts.highCPU.threshold }}
+          for: {{ .Values.alerts.highCPU.for }}
+          labels:
+            severity: warning
+          annotations:
+            summary: "High CPU usage"
+            description: "CPU usage is above threshold."
+
+        - alert: HighMemoryUsage
+          expr: sum(container_memory_usage_bytes{namespace="{{ .Values.namespace }}",container!="POD",container!=""}) by (pod) / 1024 / 1024 > {{ .Values.alerts.highMemory.threshold }}
+          for: {{ .Values.alerts.highMemory.for }}
+          labels:
+            severity: warning
+          annotations:
+            summary: "High memory usage"
+            description: "Memory usage is above threshold."
