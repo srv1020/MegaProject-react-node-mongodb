@@ -1,0 +1,25 @@
+alertmanager:
+  enabled: true
+
+  alertmanagerSpec:
+    replicas: 1
+
+  config:
+    global:
+      smtp_smarthost: 'smtp.gmail.com:587'
+      smtp_from: 'saurabhpandey689@gmail.com'
+      smtp_auth_username: 'saurabhpandey689@gmail.com'
+      smtp_auth_password: 'aklc vycq aomy dhew'
+      smtp_require_tls: true
+
+    route:
+      receiver: email-alerts
+      group_wait: 10s
+      group_interval: 30s
+      repeat_interval: 1h
+
+    receivers:
+      - name: email-alerts
+        email_configs:
+          - to: 'saurabhpandey689@gmail.com'
+            send_resolved: true

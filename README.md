@@ -8,6 +8,14 @@ This is a **3-tier web application** composed of:
 
 ---
 
+Access Frontend:-
+
+http://mega.local:8000/
+http://mega.local:8000/api
+
+
+
+
 ## 🐳 Docker Build & Push
 
 ### Frontend
