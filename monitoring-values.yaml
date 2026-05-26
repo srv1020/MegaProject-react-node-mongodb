@@ -23,3 +23,7 @@ alertmanager:
         email_configs:
           - to: 'saurabhpandey689@gmail.com'
             send_resolved: true
+grafana:
+  persistence:
+    enabled: true
+    size: 5Gi
