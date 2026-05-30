@@ -1,5 +1,8 @@
 name: Build and Push Docker Images
 
+# ==================================================
+# Trigger Pipeline
+# ==================================================
 on:
   push:
     branches:
@@ -16,68 +19,90 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # ==================================================
+      # 1. Get latest source code
+      # ==================================================
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # ==================================================
+      # 2. Generate image tag from commit SHA
+      # Example: d97f38f
+      # ==================================================
       - name: Set Image Tag
         run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
+      # ==================================================
+      # 3. Login to DockerHub
+      # ==================================================
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # ======================
-      # Frontend
-      # ======================
-
+      # ==================================================
+      # 4. Build Frontend Image
+      # ==================================================
       - name: Build Frontend Image
         run: |
           docker build \
             -t ${{ secrets.DOCKER_USERNAME }}/frontend:${IMAGE_TAG} \
             ./frontend
 
+      # ==================================================
+      # 5. Push Frontend Image
+      # ==================================================
       - name: Push Frontend Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/frontend:${IMAGE_TAG}
 
-      # ======================
-      # Backend
-      # ======================
-
+      # ==================================================
+      # 6. Build Backend Image
+      # ==================================================
       - name: Build Backend Image
         run: |
           docker build \
             -t ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG} \
             ./backend
 
+      # ==================================================
+      # 7. Push Backend Image
+      # ==================================================
       - name: Push Backend Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}
 
-      # ======================
-      # Update docker-compose.yaml
-      # ======================
+      # ==================================================
+      # 8. Install yq for YAML updates
+      # ==================================================
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq \
+          https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
 
-      - name: Update docker-compose backend tag
+      # ==================================================
+      # 9. Update Docker Compose Image Tags
+      # ==================================================
+      - name: Update docker-compose image tags
         run: |
           sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}/backend:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}|g" docker-compose.yaml
 
-      # ======================
-      # Update Helm values.yaml
-      # ======================
-
+      # ==================================================
+      # 10. Update Helm values.yaml
+      # frontend tag -> IMAGE_TAG
+      # backend tag  -> IMAGE_TAG
+      # ==================================================
       - name: Update Helm image tags
         run: |
-          sed -i "/frontend:/,/imagePullPolicy:/ s|tag: .*|tag: ${IMAGE_TAG}|" helm/mega-app/values.yaml
+          yq -i '.apps.frontend.tag = strenv(IMAGE_TAG)' helm/mega-app/values.yaml
+          yq -i '.apps.backend.tag = strenv(IMAGE_TAG)' helm/mega-app/values.yaml
 
-          sed -i "/backend:/,/imagePullPolicy:/ s|tag: .*|tag: ${IMAGE_TAG}|" helm/mega-app/values.yaml
-
-      # ======================
-      # Commit Updated Files
-      # ======================
-
+      # ==================================================
+      # 11. Commit Updated YAML Files
+      # ==================================================
       - name: Commit updated tags
         run: |
           git config user.name "github-actions"
@@ -90,10 +115,9 @@ jobs:
 
           git push
 
-      # ======================
-      # Print Tags
-      # ======================
-
+      # ==================================================
+      # 12. Print Image Information
+      # ==================================================
       - name: Show Image Tags
         run: |
           echo "Frontend: ${{ secrets.DOCKER_USERNAME }}/frontend:${IMAGE_TAG}"

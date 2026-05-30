@@ -2,10 +2,17 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: mega-app-ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+
 spec:
   ingressClassName: nginx
+
   rules:
-    - host: mega.local
+    - host: {{ .Values.ingress.host }}
       http:
         paths:
           - path: /api
@@ -14,7 +21,7 @@ spec:
               service:
                 name: backend
                 port:
-                  number: 5001
+                  number: {{ .Values.apps.backend.port }}
 
           - path: /
             pathType: Prefix
@@ -22,4 +29,4 @@ spec:
               service:
                 name: frontend
                 port:
-                  number: 80
+                  number: {{ .Values.apps.frontend.port }}

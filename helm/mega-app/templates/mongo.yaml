@@ -1,26 +1,16 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mongo-pvc
-  namespace: {{ .Values.namespace }}
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ .Values.mongo.storage }}
-
----
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: mongo
   namespace: {{ .Values.namespace }}
 spec:
+  serviceName: mongo
   replicas: {{ .Values.mongo.replicaCount }}
+
   selector:
     matchLabels:
       app: mongo
+
   template:
     metadata:
       labels:
@@ -91,8 +81,11 @@ metadata:
   name: mongo
   namespace: {{ .Values.namespace }}
 spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
   selector:
     app: mongo
   ports:
-    - port: {{ .Values.mongo.port }}
+    - name: mongo
+      port: {{ .Values.mongo.port }}
       targetPort: {{ .Values.mongo.port }}

@@ -1,0 +1,19 @@
+{{- range $name, $app := .Values.apps }}
+{{- if and $app.enabled (eq $app.type "deployment") }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ $name }}
+spec:
+  selector:
+    app: {{ $name }}
+  ports:
+    - name: http
+      port: {{ $app.port }}
+      targetPort: {{ $app.targetPort }}
+---
+{{- end }}
+{{- end }}

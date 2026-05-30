@@ -10,7 +10,6 @@ spec:
   groups:
     - name: {{ .Release.Name }}.rules
       rules:
-
         - alert: HighErrorRate
           expr: sum(increase(http_requests_total{namespace="{{ .Values.namespace }}",status=~"5.."}[5m])) > {{ .Values.alerts.highErrorRate.threshold }}
           for: {{ .Values.alerts.highErrorRate.for }}
@@ -21,7 +20,7 @@ spec:
             description: "More than {{ .Values.alerts.highErrorRate.threshold }} HTTP 5xx errors in 5 minutes."
 
         - alert: MongoDBDown
-          expr: mongodb_up == 0
+          expr: mongodb_up{namespace="{{ .Values.namespace }}"} == 0
           for: {{ .Values.alerts.mongodbDown.for }}
           labels:
             severity: critical

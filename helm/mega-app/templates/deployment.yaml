@@ -1,0 +1,72 @@
+{{- range $name, $app := .Values.apps }}
+{{- if and $app.enabled (eq $app.type "deployment") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ $name }}
+spec:
+  {{- if not $app.autoscaling.enabled }}
+  replicas: {{ $app.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+    spec:
+      containers:
+        - name: {{ $name }}
+          image: "{{ $app.image }}:{{ $app.tag }}"
+          imagePullPolicy: {{ $app.imagePullPolicy }}
+          ports:
+            - containerPort: {{ $app.port }}
+
+          {{- if or $app.env $app.secrets }}
+          env:
+            {{- if $app.env }}
+            {{- range $key, $value := $app.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
+
+            {{- if $app.secrets }}
+            {{- range $key, $value := $app.secrets }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: {{ $key }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+
+          resources:
+            requests:
+              cpu: {{ $app.resources.requests.cpu }}
+              memory: {{ $app.resources.requests.memory }}
+            limits:
+              cpu: {{ $app.resources.limits.cpu }}
+              memory: {{ $app.resources.limits.memory }}
+
+          livenessProbe:
+            httpGet:
+              path: {{ $app.livenessProbe.path }}
+              port: {{ $app.port }}
+            initialDelaySeconds: {{ $app.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $app.livenessProbe.periodSeconds }}
+
+          readinessProbe:
+            httpGet:
+              path: {{ $app.readinessProbe.path }}
+              port: {{ $app.port }}
+            initialDelaySeconds: {{ $app.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $app.readinessProbe.periodSeconds }}
+---
+{{- end }}
+{{- end }}
