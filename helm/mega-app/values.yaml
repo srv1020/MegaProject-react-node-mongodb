@@ -4,7 +4,7 @@ apps:
     enabled: true
     type: deployment
     image: srvpndy/frontend
-    tag: a82db68
+    tag: 9b0662f
     imagePullPolicy: IfNotPresent
     replicaCount: 2
     port: 80
@@ -35,7 +35,7 @@ apps:
     enabled: true
     type: deployment
     image: srvpndy/backend
-    tag: a82db68
+    tag: 9b0662f
     imagePullPolicy: IfNotPresent
     replicaCount: 2
     port: 5001
