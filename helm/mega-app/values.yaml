@@ -1,16 +1,14 @@
 namespace: mega-app
-
 apps:
   frontend:
     enabled: true
     type: deployment
     image: srvpndy/frontend
-    tag: d97f38f
+    tag: 44a48e1
     imagePullPolicy: IfNotPresent
     replicaCount: 2
     port: 80
     targetPort: 80
-
     resources:
       requests:
         cpu: 100m
@@ -18,36 +16,30 @@ apps:
       limits:
         cpu: 300m
         memory: 256Mi
-
     livenessProbe:
       path: /
       initialDelaySeconds: 20
       periodSeconds: 10
-
     readinessProbe:
       path: /
       initialDelaySeconds: 5
       periodSeconds: 5
-
     autoscaling:
       enabled: true
       minReplicas: 2
       maxReplicas: 5
       cpuUtilization: 70
-
     monitoring:
       enabled: false
-
   backend:
     enabled: true
     type: deployment
     image: srvpndy/backend
-    tag: d97f38f
+    tag: 44a48e1
     imagePullPolicy: IfNotPresent
     replicaCount: 2
     port: 5001
     targetPort: 5001
-
     env:
       PORT: "5001"
       MONGO_HOST: mongo
@@ -55,12 +47,10 @@ apps:
       MONGO_DB_NAME: srvpndy
       MONGO_AUTH_SOURCE: admin
       CORS_ORIGIN: http://mega.local:8080
-
     secrets:
       MONGO_USER: admin
       MONGO_PASSWORD: secure123
       JWT_SECRET: this-is-a-long-random-secret
-
     resources:
       requests:
         cpu: 200m
@@ -68,26 +58,21 @@ apps:
       limits:
         cpu: 500m
         memory: 512Mi
-
     livenessProbe:
       path: /api/healthz
       initialDelaySeconds: 60
       periodSeconds: 10
-
     readinessProbe:
       path: /api/healthz
       initialDelaySeconds: 30
       periodSeconds: 5
-
     autoscaling:
       enabled: true
       minReplicas: 2
       maxReplicas: 6
       cpuUtilization: 70
-
     monitoring:
       enabled: true
-
 mongo:
   enabled: true
   type: statefulset
@@ -100,7 +85,6 @@ mongo:
   password: secure123
   database: srvpndy
   mountPath: /data/db
-
   resources:
     requests:
       cpu: 100m
@@ -108,41 +92,32 @@ mongo:
     limits:
       cpu: 500m
       memory: 512Mi
-
   livenessProbe:
     initialDelaySeconds: 120
     periodSeconds: 15
     timeoutSeconds: 10
     failureThreshold: 5
-
   readinessProbe:
     initialDelaySeconds: 60
     periodSeconds: 20
     timeoutSeconds: 5
     failureThreshold: 10
-
 ingress:
   host: mega.local
-
 alerts:
   highErrorRate:
     threshold: 3
     for: 1m
-
   mongodbDown:
     for: 1m
-
   podRestarting:
     threshold: 3
     for: 1m
-
   podNotReady:
     for: 2m
-
   highCPU:
     threshold: 0.8
     for: 2m
-
   highMemory:
     threshold: 500
     for: 2m
