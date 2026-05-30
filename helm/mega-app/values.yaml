@@ -85,8 +85,7 @@ mongo:
   password: secure123
   database: srvpndy
   mountPath: /data/db
-  storage:
-    size: 1Gi
+  storage: 1Gi
   resources:
     requests:
       cpu: 100m
