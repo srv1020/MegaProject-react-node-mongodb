@@ -76,6 +76,20 @@ spec:
 
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+  namespace: {{ .Values.namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.mongo.storage }}
+
+      
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: mongo
